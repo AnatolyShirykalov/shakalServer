@@ -18,21 +18,12 @@ func NewHand() (ret *Hand) {
 	return ret
 }
 
-func (hand *Hand) OnAction(s socketio.Socket, data interface{}) {
-	hand.Ch <- Message{Type: "action", Data: data, So: s}
-	/*v := reflect.ValueOf(data)*/
-	//typeWithPrefix, ok := v.Interface().(map[string]interface{})["type"]
-	//if !ok {
-	//log.Println(v)
-	//}
-	//tp := strings.Replace(typeWithPrefix.(string), "server/", "", 1)
-	//v.SetMapIndex(reflect.ValueOf("type"), reflect.ValueOf(tp))
-	//ret := v.Interface()
-	//s.Emit("action", ret)
-	/*s.BroadcastTo("chat", "action", ret)*/
+func (h *Hand) OnAction(s socketio.Socket, data interface{}) {
+	h.Ch <- Message{Type: "action", Data: data, So: s}
+
 }
 
-func (hand *Hand) OnJoin(s socketio.Socket, data interface{}) {
-	hand.Ch <- Message{Type: "join", Data: data, So: s}
+func (h *Hand) OnJoin(s socketio.Socket, data interface{}) {
+	h.Ch <- Message{Type: "join", Data: data, So: s}
 	//s.Join(roomId)
 }

@@ -4,22 +4,26 @@ import (
 	"log"
 )
 
-func (hand *Hand) run() {
-	for message := range hand.Ch {
+func (h *Hand) run() {
+	for message := range h.Ch {
 		log.Println("received", message.Type)
 		switch message.Type {
-		case "connection":
-			hand.Connect(message.So)
+		case "connect":
+			h.Connect(message.So)
 		case "join":
 			gameId, playerId, err := getJoinParams(message.Data)
-			if err == nil {
-				hand.Join(gameId, playerId)
+			if err != nil {
+				message.So.Emit("error", err.Error())
+				break
 			}
-			message.So.Emit("kaka", "lala")
+			msg := h.Join(gameId, playerId)
+			message.So.Join(gameId)
+			message.So.BroadcastTo(gameId, "joined", msg)
+			message.So.Emit("joined", msg)
 		case "action":
-			hand.Action()
+			h.Action(message.Data, message.So)
 		case "disconnection":
-			hand.Disconnect()
+			h.Disconnect()
 		}
 	}
 }
