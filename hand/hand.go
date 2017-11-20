@@ -5,15 +5,17 @@ import (
 )
 
 type Hand struct {
-	Ch      chan Message
-	Games   map[string]*Game
-	counter int64
+	Ch             chan Message
+	Games          map[string]*Game
+	counter        int64
+	socketIdGameId map[string]string
 }
 
 func NewHand() (ret *Hand) {
 	ret = &Hand{}
 	ret.Ch = make(chan Message)
 	ret.Games = make(map[string]*Game)
+	ret.socketIdGameId = make(map[string]string)
 	go ret.run()
 	return ret
 }

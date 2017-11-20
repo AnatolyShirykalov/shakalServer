@@ -12,7 +12,7 @@ type Game struct {
 
 func (g *Game) AddPlayer(id string) string {
 	log.Println("game add player", id)
-	g.Players = append(g.Players, &Player{Id: id, Connected: true})
+	g.Players = append(g.Players, &Player{Id: id})
 	return strconv.Itoa(len(g.Players) - 1)
 }
 
@@ -26,15 +26,6 @@ func (g *Game) HasPlayer(id string) bool {
 	return false
 }
 
-func (g *Game) ConnectPlayer(id string) {
-	log.Println("game connect player", id)
-	for _, player := range g.Players {
-		if player.Id == id {
-			player.Connected = true
-		}
-	}
-}
-
 func (g *Game) ConnectedPlayers() (ret int) {
 	for _, player := range g.Players {
 		if player.Connected {
@@ -44,9 +35,32 @@ func (g *Game) ConnectedPlayers() (ret int) {
 	return
 }
 
-func (g *Game) GetPlayer(id string) (string, *Player) {
+func (g *Game) indexPlayer(id string, f func(*Player)) (string, *Player) {
 	for index, player := range g.Players {
 		if player.Id == id {
+			f(player)
+			return strconv.Itoa(index), player
+		}
+	}
+	return "-1", nil
+}
+
+func (g *Game) GetPlayer(id string) (string, *Player) {
+	return g.indexPlayer(id, func(p *Player) {})
+}
+
+func (g *Game) ConnectPlayer(id, socketId string) (string, *Player) {
+	return g.indexPlayer(id, func(p *Player) {
+		p.Connected = true
+		p.SocketId = socketId
+	})
+}
+
+func (g *Game) DisconnectPlayer(id string) (string, *Player) {
+	for index, player := range g.Players {
+		if player.SocketId == id {
+			player.Connected = false
+			player.SocketId = ""
 			return strconv.Itoa(index), player
 		}
 	}
